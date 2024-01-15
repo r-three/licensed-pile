@@ -13,8 +13,7 @@ These steps are to be completed for each wiki that we are scraping.
   * `Talk`: 1
   * `UserTalk`: 3
 Either the integer or the name can be used as input. This generates lists of page titles at `data/${wiki_name}/pages/${ns}.txt`.
-3. Copy these page titles (`cat data/${wiki_name}/pages/* | xclip -sel clip`) and paste them into the `add pages manually` textbox at `${wiki_url}/Special:Export`. **Uncheck `Include only the current revision, not the full history`** and **click Export**.
+3. Get the XML export of these pages with `python export_pages.py --wiki ${wiki_url}`. This get xml exports of the all the pages exported pages. It currently fetches all revisions so that we can build a complete author list. This will create a sharded xml export at `data/${wiki_name}/export/${shard_idx}-pages.xml`. The `<text>` tag contains the wikimedia markup.
 
-This will return an xml file with information about each page we included in the textbox.  By getting the full history we will be able to get the full author list for each page by looking at revision data.
 
-**TODO**: Figure out how to programatically do the export step instead of using the web browser.
+**TODO:** Is this exported format the exact same as the published mediawiki dumps to the point we can reuse code?

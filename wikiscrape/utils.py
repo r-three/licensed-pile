@@ -15,22 +15,29 @@ logging.basicConfig(
 
 
 @retry(stop=stop_after_attempt(5), wait=wait_random_exponential(multiplier=1, max=30))
-def get_page(
-    url: str, params: Optional[Dict[str, str]] = None, parser: str = "html.parser"
-):
+def get_page(url: str, params: Optional[Dict[str, str]] = None):
     """Get page and parse into soup."""
     params = params if params is not None else {}
     resp = requests.get(url, params=params)
+    logging.debug(f"Sending GET to {resp.url}")
     if resp.status_code != 200:
         logging.warning(
             f"Failed request to {resp.url}: {resp.status_code}, {resp.reason}"
         )
         raise RuntimeError(f"Failed request to {resp.url}")
-    return BeautifulSoup(resp.text, parser)
+    return resp.text
+
+
+def get_soup(text, parser="html.parser"):
+    """Abstract into a function in case we want to swap how we parse html."""
+    return BeautifulSoup(text, parser)
 
 
 def get_wiki_name(url: str) -> str:
-    """Use a wiki's url as it's name."""
+    """Use a wiki's url as it's name.
+
+    This functions is to abstract into a semantic unit, even though it doesn't do much.
+    """
     return urllib.parse.urlparse(url).netloc
 
 

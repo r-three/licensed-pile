@@ -7,7 +7,7 @@ import os
 import urllib.parse
 from typing import Dict
 
-from utils import get_page, get_wiki_name
+from utils import get_page, get_soup, get_wiki_name
 
 parser = argparse.ArgumentParser(description="Find all namespaces in a mediawiki wiki.")
 parser.add_argument("--wiki", required=True, help="The Url for the wiki in question.")
@@ -24,7 +24,7 @@ def find_namespaces(wiki_url: str) -> Dict[int, str]:
     # of things (with the /wiki/ being for readers), we use it here to start looking
     # for pages because it is more consistent (some wiki's want /w/index.php and
     # some just want /index.php).
-    soup = get_page(urllib.parse.urljoin(wiki_url, "/wiki/Special:AllPages"))
+    soup = get_soup(get_page(urllib.parse.urljoin(wiki_url, "/wiki/Special:AllPages")))
     # Extract the list of namespaces from the URL
     namespaces = soup.find(id="namespace")
     for option in namespaces.find_all("option"):

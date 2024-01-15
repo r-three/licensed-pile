@@ -8,7 +8,7 @@ import urllib.parse
 from typing import List
 
 from requests.models import PreparedRequest
-from utils import get_page, get_wiki_name, removeprefix
+from utils import get_page, get_soup, get_wiki_name, removeprefix
 
 parser = argparse.ArgumentParser(
     description="Find all pages under a namespace for a mediawiki."
@@ -55,12 +55,14 @@ def _enumerate_namespace(url: str, wiki_url: str, pages: List[str]) -> List[str]
       pages: The current list of pages we are building.
     """
     logging.info(f"Finding page links in {url}")
-    soup = get_page(url)
+    soup = get_soup(get_page(url))
     # Find all the links in the page
     page_count = len(pages)
     if links := soup.find("div", {"class": "mw-allpages-body"}):
         for link in links.find_all("a"):
-            pages.append(removeprefix(link.attrs["href"], "/wiki/"))
+            pages.append(
+                urllib.parse.unquote(removeprefix(link.attrs["href"], "/wiki/"))
+            )
     logging.info(f"Found {len(pages) - page_count} pages")
 
     # Find a pagenation link

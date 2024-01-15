@@ -1,5 +1,6 @@
 """Tools to help with xml parsing."""
 
+from typing import List
 from xml.etree import ElementTree as ET
 
 
@@ -20,3 +21,9 @@ def iterate_xml(path: str, tag: str):
         if event == "end" and elem.tag == tag:
             yield elem
             root.clear()
+
+
+def iterate_xmls(paths: List[str], tag: str):
+    """Iterable version of parsing multiple xml files with the same structure as a single iterator."""
+    for path in paths:
+        yield from iterate_xml(path, tag)
