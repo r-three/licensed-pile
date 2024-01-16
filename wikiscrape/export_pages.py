@@ -62,6 +62,8 @@ def read_page_titles(filename: str) -> List[str]:
 
 
 def main(args):
+    if args.listauthors is not None:
+        raise NotImplementedError("--listauthors is current not implemented.")
     args.pages = (
         args.pages
         if args.pages is not None

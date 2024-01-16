@@ -48,8 +48,8 @@ def _enumerate_namespace(url: str, wiki_url: str, pages: List[str]) -> List[str]
     """Collect all pages of a wiki from within a namespace.
 
     Args:
-      url: The current pagenation URL to get the next set of links from.
-      wiki_url: The base url as pagenation links don't include the host information.
+      url: The current pagination URL to get the next set of links from.
+      wiki_url: The base url as pagination links don't include the host information.
         Note: If we move this recurrent function to an inner function of the above
               this wouldn't need to be a parameter.
       pages: The current list of pages we are building.
@@ -65,16 +65,16 @@ def _enumerate_namespace(url: str, wiki_url: str, pages: List[str]) -> List[str]
             )
     logging.info(f"Found {len(pages) - page_count} pages")
 
-    # Find a pagenation link
+    # Find a pagination link
     if nav := soup.find("div", {"class": "mw-allpages-nav"}):
         for link in nav.find_all("a"):
-            # Pagenation links look like "Next Page (${page title})"
+            # Pagination links look like "Next Page (${page title})"
             # Check the start of the text to make sure we don't find a link that has
             # a title that contains "next page".
             if link.text.lower().startswith("next page"):
-                # Recurse using the pagenation link as the new url.
+                # Recurse using the pagination link as the new url.
                 try:
-                    logging.info(f"Found pagenation page at {link.attrs['href']}")
+                    logging.info(f"Found pagination page at {link.attrs['href']}")
                     # The current page links have already been added to pages so we can
                     # just return whatever the recusion gives us.
                     return _enumerate_namespace(
@@ -83,14 +83,14 @@ def _enumerate_namespace(url: str, wiki_url: str, pages: List[str]) -> List[str]
                         pages,
                     )
                 except Exception as e:
-                    # If something goes wrong in pagenation, just return the pages we
+                    # If something goes wrong in pagination, just return the pages we
                     # have.
                     loggging.info(
-                        f"Something went wrong processing pagenation at {link.attrs['href']}, returning partial results."
+                        f"Something went wrong processing pagination at {link.attrs['href']}, returning partial results."
                     )
                     return pages
-    # If no pagenation link was found, just return what we have.
-    logging.info(f"No pagenation link found, finished.")
+    # If no pagination link was found, just return what we have.
+    logging.info(f"No pagination link found, finished.")
     return pages
 
 
