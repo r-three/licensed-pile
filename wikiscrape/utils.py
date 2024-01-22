@@ -8,6 +8,8 @@ import requests
 from bs4 import BeautifulSoup
 from tenacity import retry, stop_after_attempt, wait_random_exponential
 
+from licensed_pile.scrape import USER_AGENT
+
 logging.basicConfig(
     level=logging.INFO,
     format="wikiscrape: [%(asctime)s] %(levelname)s - %(message)s",
@@ -18,7 +20,7 @@ logging.basicConfig(
 def get_page(url: str, params: Optional[Dict[str, str]] = None):
     """Get page and parse into soup."""
     params = params if params is not None else {}
-    resp = requests.get(url, params=params)
+    resp = requests.get(url, params=params, headers={"User-Agent": USER_AGENT})
     logging.debug(f"Sending GET to {resp.url}")
     if resp.status_code != 200:
         logging.warning(
