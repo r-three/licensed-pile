@@ -6,3 +6,5 @@ dolma
 smart_open
 markdown-it-py
 charset_normalizer
+ultimate-sitemap-parser
+jsonlines
