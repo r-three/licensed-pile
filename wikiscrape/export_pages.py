@@ -32,6 +32,9 @@ parser.add_argument(
     "--page_limit", default=35, help="The max number of pages to export at once."
 )
 parser.add_argument(
+    "--test_pages", default=None, type=int, help="The number of test pages to retrieve."
+)
+parser.add_argument(
     "--output_dir",
     help="Where to save the xml export. defaults to data/${wiki_name}/export/.",
 )
@@ -93,9 +96,11 @@ def main(args):
     # with literal "{"'s.
     for i, j in enumerate(range(0, len(pages), args.page_limit)):
         xml = export_pages(args.wiki, pages[j : j + args.page_limit])
-        dirname, filename = os.path.split(args.output)
-        with open(os.path.join(dirname, f"{i:>05}-{filename}"), "w") as wf:
+        with open(os.path.join(args.output_dir, f"{i:>05}-pages.xml"), "w") as wf:
             wf.write(xml)
+        if args.test_pages and j > args.test_pages:
+            print(f"Scraped {j + args.page_limit} pages, stopping for testing.")
+            break
 
 
 if __name__ == "__main__":

@@ -37,12 +37,12 @@ class PermissiveLicenses(StringEnum):
         s = s.lower().strip()
         if re.match(r".*/publicdomain/zero/1.0/?$", s):
             return cls.CC0
-        if m := re.match(r".*/licenses/by(?P<share>-sa)?/(?P<version>\d).0/?$", s):
+        if m := re.match(r".*(?:/licenses/)?by(?P<share>-sa)?/(?P<version>\d).0/?$", s):
             if m.group("version") == "4":
                 if m.group("share") is None:
                     return cls.CC_BY_SA
                 return cls.CC_BY
-            elif m.group(1) == "3":
+            elif m.group("version") == "3":
                 if m.group("share") is None:
                     return cls.CC_BY_SA_3
                 return cls.CC_BY_3

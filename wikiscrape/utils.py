@@ -6,9 +6,8 @@ from typing import Dict, Optional
 
 import requests
 from bs4 import BeautifulSoup
-from tenacity import retry, stop_after_attempt, wait_random_exponential
 
-from licensed_pile.scrape import USER_AGENT
+from licensed_pile import scrape
 
 logging.basicConfig(
     level=logging.INFO,
@@ -16,18 +15,9 @@ logging.basicConfig(
 )
 
 
-@retry(stop=stop_after_attempt(5), wait=wait_random_exponential(multiplier=1, max=30))
-def get_page(url: str, params: Optional[Dict[str, str]] = None):
-    """Get page and parse into soup."""
-    params = params if params is not None else {}
-    resp = requests.get(url, params=params, headers={"User-Agent": USER_AGENT})
-    logging.debug(f"Sending GET to {resp.url}")
-    if resp.status_code != 200:
-        logging.warning(
-            f"Failed request to {resp.url}: {resp.status_code}, {resp.reason}"
-        )
-        raise RuntimeError(f"Failed request to {resp.url}")
-    return resp.text
+def get_page(*args, **kwargs):
+    r = scrape.get_page(*args, **kwargs)
+    return r.text
 
 
 def get_soup(text, parser="html.parser"):
@@ -48,3 +38,9 @@ def removeprefix(s: str, prefix: str) -> str:
     if s.startswith(prefix):
         return s[len(prefix) :]
     return s[:]
+
+
+def wiki_url(base_url: str, title: str) -> str:
+    """Create a wiki url from the wiki url and the page name."""
+    url = urllib.parse.urljoin(base_url, f"wiki/{title.replace(' ', '_')}")
+    return urllib.parse.quote(url, safe=":/")
