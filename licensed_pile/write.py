@@ -109,7 +109,7 @@ class ShardParallelProcessor(BaseParallelProcessor):
 
                     processed = cls.process_example(data, **kwargs)
 
-                    if processed is None:
+                    if processed is None or not processed["text"]:
                         logger.warning(
                             "Preprocessing has reduced %s:%s to nothing, skipping",
                             source_path,
