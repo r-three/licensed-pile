@@ -1,6 +1,5 @@
 """Utilities for scraping wikis."""
 
-import logging
 import urllib.parse
 from typing import Dict, Optional
 
@@ -8,11 +7,6 @@ import requests
 from bs4 import BeautifulSoup
 
 from licensed_pile import scrape
-
-logging.basicConfig(
-    level=logging.INFO,
-    format="wikiscrape: [%(asctime)s] %(levelname)s - %(message)s",
-)
 
 
 def get_page(*args, **kwargs):

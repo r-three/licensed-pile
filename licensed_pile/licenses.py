@@ -48,6 +48,8 @@ class PermissiveLicenses(StringEnum):
                 return cls.CC_BY_3
             else:
                 raise ValueError(f"Unable to understand license {s}")
+        if s == "gfdl":
+            return cls.GFDL
         raise ValueError(f"Unable to understand license {s}")
 
 

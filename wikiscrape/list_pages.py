@@ -2,13 +2,14 @@
 
 import argparse
 import json
-import logging
 import os
 import urllib.parse
 from typing import List
 
 from requests.models import PreparedRequest
 from utils import get_page, get_soup, get_wiki_name, removeprefix
+
+from licensed_pile import logs
 
 parser = argparse.ArgumentParser(
     description="Find all pages under a namespace for a mediawiki."
@@ -29,7 +30,8 @@ parser.add_argument("--output_dir", help="Where to store the list of file output
 
 def enumerate_namespace(wiki_url: str, namespace: int) -> List[str]:
     """Collect all pages of a wiki from within a namespace."""
-    logging.info(f"Finding all pages under the {namespace} namespace from {wiki_url}")
+    logger = logs.get_logger("wikiscrape")
+    logger.info(f"Finding all pages under the {namespace} namespace from {wiki_url}")
     # Even though they recomment using the index.php?title=PAGETITLE url for a lot
     # of things (with the /wiki/ being for readers), we use it here to start looking
     # for pages because it is more consistent (some wiki's want /w/index.php and
@@ -54,7 +56,8 @@ def _enumerate_namespace(url: str, wiki_url: str, pages: List[str]) -> List[str]
               this wouldn't need to be a parameter.
       pages: The current list of pages we are building.
     """
-    logging.info(f"Finding page links in {url}")
+    logger = logs.get_logger("wikiscrape")
+    logger.info(f"Finding page links in {url}")
     soup = get_soup(get_page(url))
     # Find all the links in the page
     page_count = len(pages)
@@ -63,7 +66,7 @@ def _enumerate_namespace(url: str, wiki_url: str, pages: List[str]) -> List[str]
             pages.append(
                 urllib.parse.unquote(removeprefix(link.attrs["href"], "/wiki/"))
             )
-    logging.info(f"Found {len(pages) - page_count} pages")
+    logger.info(f"Found {len(pages) - page_count} pages")
 
     # Find a pagination link
     if nav := soup.find("div", {"class": "mw-allpages-nav"}):
@@ -74,7 +77,7 @@ def _enumerate_namespace(url: str, wiki_url: str, pages: List[str]) -> List[str]
             if link.text.lower().startswith("next page"):
                 # Recurse using the pagination link as the new url.
                 try:
-                    logging.info(f"Found pagination page at {link.attrs['href']}")
+                    logger.info(f"Found pagination page at {link.attrs['href']}")
                     # The current page links have already been added to pages so we can
                     # just return whatever the recusion gives us.
                     return _enumerate_namespace(
@@ -85,12 +88,12 @@ def _enumerate_namespace(url: str, wiki_url: str, pages: List[str]) -> List[str]
                 except Exception as e:
                     # If something goes wrong in pagination, just return the pages we
                     # have.
-                    loggging.info(
+                    logger.info(
                         f"Something went wrong processing pagination at {link.attrs['href']}, returning partial results."
                     )
                     return pages
     # If no pagination link was found, just return what we have.
-    logging.info(f"No pagination link found, finished.")
+    logger.info(f"No pagination link found, finished.")
     return pages
 
 
@@ -119,4 +122,5 @@ def main(args):
 
 if __name__ == "__main__":
     args = parser.parse_args()
+    logs.configure_logging("wikiscrape")
     main(args)

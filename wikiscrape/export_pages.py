@@ -19,6 +19,8 @@ from typing import List
 
 from utils import get_page, get_wiki_name
 
+from licensed_pile import logs
+
 parser = argparse.ArgumentParser(description="Export mediawikis as XML")
 parser.add_argument("--wiki", required=True, help="The wiki url we are exporting.")
 parser.add_argument(
@@ -67,11 +69,13 @@ def read_page_titles(filename: str) -> List[str]:
 def main(args):
     if args.listauthors is not None:
         raise NotImplementedError("--listauthors is current not implemented.")
+    logger = logs.get_logger("wikiscrape")
     args.pages = (
         args.pages
         if args.pages is not None
         else [os.path.join("data", get_wiki_name(args.wiki), "pages")]
     )
+    logger.info("Enumerating pages from %s", args.pages)
     pages = []
     for page in args.pages:
         if os.path.exists(page) and os.path.isdir(page):
@@ -79,6 +83,7 @@ def main(args):
                 pages.extend(read_page_titles(f))
         else:
             pages.extend(read_page_titles(page))
+    logger.info("There are %d pages to export.", len(pages))
 
     args.output_dir = (
         args.output_dir
@@ -86,6 +91,7 @@ def main(args):
         else os.path.join("data", get_wiki_name(args.wiki), "export")
     )
     os.makedirs(args.output_dir, exist_ok=True)
+    logger.info("Saving export to %s", args.output_dir)
 
     # Save shards of exported pages to
     #   data/${wiki_name}/export/${shard_idx}-pages.xml
@@ -99,10 +105,11 @@ def main(args):
         with open(os.path.join(args.output_dir, f"{i:>05}-pages.xml"), "w") as wf:
             wf.write(xml)
         if args.test_pages and j > args.test_pages:
-            print(f"Scraped {j + args.page_limit} pages, stopping for testing.")
+            logger.info(f"Scraped {j + args.page_limit} pages, stopping for testing.")
             break
 
 
 if __name__ == "__main__":
     args = parser.parse_args()
+    logs.configure_logging("wikiscrape")
     main(args)

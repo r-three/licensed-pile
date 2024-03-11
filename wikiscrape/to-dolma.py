@@ -4,12 +4,13 @@ import argparse
 import datetime
 import functools
 import glob
-import itertools
+import os
 import urllib.parse
 
 from utils import get_wiki_name, wiki_url
 
 from licensed_pile.licenses import PermissiveLicenses
+from licensed_pile.logs import configure_logging, get_logger
 from licensed_pile.write import to_dolma
 from licensed_pile.xml import iterate_xmls
 
@@ -36,14 +37,18 @@ parser.add_argument(
 def main(args):
     # Calculate defaults
     license = PermissiveLicenses.from_string(args.license)
+    logger = get_logger("wikiscrape")
+    logger.info("Saving all exported pages as licensed with %s", license)
     args.filename = (
         args.filename if args.filename else f"{get_wiki_name(args.wiki)}.jsonl.gz"
     )
+    logger.info("Saving to dolma format at %s", args.filename)
     args.export = (
         args.export
         if args.export
         else os.path.join("data", get_wiki_name(args.wiki), "export", "*.xml")
     )
+    logger.info("Loading export from %s", args.export)
 
     # Our parser can ignore namespaces so just use `page`.
     pages = iterate_xmls(glob.iglob(args.export), tag="page")
@@ -58,7 +63,7 @@ def main(args):
 
 def format_dolma(xml, source_name: str, wiki: str, license: PermissiveLicenses):
     revisions = [r for r in xml if r.tag.endswith("revision")]
-    # TODO Handle if this fails.
+    # TODO Handle if this fails and add logging.
     text = [t for t in revisions[-1] if t.tag.endswith("text")][0].text
     page_namespace = [ns for ns in xml if ns.tag.endswith("ns")][0].text
     page_id = [pid for pid in xml if pid.tag.endswith("id")][0].text
@@ -96,4 +101,5 @@ def format_dolma(xml, source_name: str, wiki: str, license: PermissiveLicenses):
 
 if __name__ == "__main__":
     args = parser.parse_args()
+    configure_logging("wikiscrape")
     main(args)

@@ -2,12 +2,13 @@
 
 import argparse
 import json
-import logging
 import os
 import urllib.parse
 from typing import Dict
 
 from utils import get_page, get_soup, get_wiki_name
+
+from licensed_pile import logs
 
 parser = argparse.ArgumentParser(description="Find all namespaces in a mediawiki wiki.")
 parser.add_argument("--wiki", required=True, help="The Url for the wiki in question.")
@@ -19,7 +20,8 @@ parser.add_argument(
 
 def find_namespaces(wiki_url: str) -> Dict[int, str]:
     options = {}
-    logging.info(f"Finding all namespaces from {args.wiki}")
+    logger = logs.get_logger("wikiscrape")
+    logger.info(f"Finding all namespaces from {args.wiki}")
     # Even though they recomment using the index.php?title=PAGETITLE url for a lot
     # of things (with the /wiki/ being for readers), we use it here to start looking
     # for pages because it is more consistent (some wiki's want /w/index.php and
@@ -47,4 +49,5 @@ def main(args):
 
 if __name__ == "__main__":
     args = parser.parse_args()
+    logs.configure_logging("wikiscrape")
     main(args)
