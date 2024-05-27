@@ -25,6 +25,7 @@ class PermissiveLicenses(StringEnum):
     APACHE_2 = "Apache 2 License - https://www.apache.org/licenses/LICENSE-2.0"
     MIT = "MIT License"
     BSD = "BSD License"
+    OPL = "Open Parliament Licence - https://www.parliament.uk/site-information/copyright-parliament/open-parliament-licence/"
 
     # TODO: Fill out this function to match in more cases.
     # Note: This kind of function will always be messy and probably require
